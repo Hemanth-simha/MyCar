@@ -1,4 +1,4 @@
 FROM openjdk:19
-COPY target/*.jar /
+ADD target/MyCar-1.0-SNAPSHOT.jar MyCar-1.0-SNAPSHOT.jar
 EXPOSE 8080
 ENTRYPOINT ["java","-jar","/MyCar-1.0-SNAPSHOT.jar"]
