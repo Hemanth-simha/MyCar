@@ -1,12 +1,39 @@
-pipeline {  environment {
-    registry = "c2hs/mycarv.01"
+pipeline {
+  environment {
+    imagename = "c2hs/mycarv.01"
     registryCredential = 'c2hs'
-  }  agent any  stages {
+    dockerImage = ''
+  }
+  agent any
+  stages {
+    stage('Cloning Git') {
+      steps {
+        git([url: 'https://github.com/Hemanth-simha/MyCar.git', branch: 'main', credentialsId: 'be061e02-6f66-4d96-af9c-fced19a71676'])
+
+      }
+    }
     stage('Building image') {
       steps{
         script {
-          docker.build registry + ":$BUILD_NUMBER"
+          dockerImage = docker.build imagename
         }
+      }
+    }
+    stage('Deploy Image') {
+      steps{
+        script {
+          docker.withRegistry( '', registryCredential ) {
+            dockerImage.push("$BUILD_NUMBER")
+             dockerImage.push('latest')
+          }
+        }
+      }
+    }
+    stage('Remove Unused docker image') {
+      steps{
+        sh "docker rmi $imagename:$BUILD_NUMBER"
+         sh "docker rmi $imagename:latest"
+
       }
     }
   }
